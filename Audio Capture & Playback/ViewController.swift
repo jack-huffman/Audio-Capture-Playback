@@ -36,7 +36,7 @@ class ViewController: UIViewController {
     func alertUser(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
-        alert.present(self, animated: true, completion: nil)
+        self.present(alert, animated: true, completion: nil)
     }
     
 }
