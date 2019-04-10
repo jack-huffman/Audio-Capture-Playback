@@ -86,6 +86,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         recorder.stop()
         if success {
             self.recordBtn.image = UIImage(named: "record")
+            self.alertUser(title: "Recording Saved", message: "Recording has been made successfully.")
         } else {
             self.recordBtn.image = UIImage(named: "record")
             self.alertUser(title: "Recording Failed", message: "Recording could not be completed")
