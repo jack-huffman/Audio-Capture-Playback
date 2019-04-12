@@ -9,7 +9,7 @@
 import UIKit
 import AVKit
 
-class ViewController: UIViewController, AVAudioRecorderDelegate {
+class ViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDelegate {
 
     let audioSession = AVAudioSession.sharedInstance()
     var recorder = AVAudioRecorder()
@@ -35,9 +35,31 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     }
     
     @IBAction func playButtonPressed(_ sender: UIBarButtonItem) {
-        
+        if playBtn.image == UIImage(named: "play") {
+            if let recordingURL = checkForExistingAudio() {
+                do {
+                    player = try AVAudioPlayer(contentsOf: recordingURL)
+                    player.play()
+                    playBtn.image = UIImage(named: "stop")
+                    recordBtn.isEnabled = false
+                } catch {
+                    print("Error: Could not play audio")
+                    playBtn.image = UIImage(named: "play")
+                    recordBtn.isEnabled = true
+                }
+            }
+        }
+        else {
+            player.stop()
+            playBtn.image = UIImage(named: "play")
+            recordBtn.isEnabled = true
+        }
     }
     
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        playBtn.image = UIImage(named: "play")
+        recordBtn.isEnabled = true
+    }
     
     func requestRecordingPermission() {
         audioSession.requestRecordPermission() {
@@ -58,6 +80,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     
     func startRecording() {
         let audioFileName = "audio.mp4"
+        
         let settings = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
             AVSampleRateKey: 1200,
@@ -86,6 +109,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         recorder.stop()
         if success {
             self.recordBtn.image = UIImage(named: "record")
+            self.playBtn.isEnabled = true
             self.alertUser(title: "Recording Saved", message: "Recording has been made successfully.")
         } else {
             self.recordBtn.image = UIImage(named: "record")
@@ -99,6 +123,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
         }
     }
     
+    func checkForExistingAudio() -> URL? {
+        let fileManager = FileManager.default
+        let documentDirectoryPaths = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+        let documentDirectoryURL = documentDirectoryPaths[0]
+        return documentDirectoryURL.appendingPathComponent("audio.mp4")
+    }
+    
     func alertUser(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
@@ -106,4 +137,3 @@ class ViewController: UIViewController, AVAudioRecorderDelegate {
     }
     
 }
-
